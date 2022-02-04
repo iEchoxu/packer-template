@@ -1,0 +1,104 @@
+{
+  "_comment": "Basic templates for packer,Build with `packer build -var-file variables-centos7.9.json centos.json`",
+  "builders": [
+    {
+      "nested_virt": true,
+      "rtc_time_base": "local",
+      "gfx_controller": "vmsvga",
+      "gfx_vram_size": "16",
+      "gfx_accelerate_3d": true,
+      "type": "virtualbox-iso",
+      "guest_os_type": "RedHat_64",
+      "hard_drive_interface": "sata",
+      "vm_name": "{{user `default_vm_name`}}",
+      "virtualbox_version_file": ".vbox_version",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "guest_additions_url": "{{user `guest_additions_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_url": "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}",
+      "http_directory": "{{user `http_directory`}}",
+      "output_directory": "{{user `build_directory`}}/packer-{{user `default_vm_name`}}-virtualbox",
+      "headless": "{{user `headless`}}",
+      "shutdown_command": "sudo /sbin/halt -h -p",
+      "cpus": "{{user `cpus`}}",
+      "memory": "{{user `memory`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "ssh_port": 22,
+      "ssh_timeout": "30m",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "boot_command": [
+        "<up><wait><tab> text ks=http://{{.HTTPIP}}:{{.HTTPPort}}/{{user `ks_path`}} PACKER_AUTHORIZED_KEY=http://{{.HTTPIP}}:{{.HTTPPort}}/{{user `ssh_pubkey`}} <enter><wait>"
+      ],
+      "boot_wait": "5s",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--vrde",
+          "off"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--recording",
+          "off"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--clipboard",
+          "bidirectional"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--draganddrop",
+          "bidirectional"
+        ],
+        [
+          "storagectl",
+          "{{.Name}}",
+          "--name",
+          "SATA Controller",
+          "--hostiocache",
+          "on"
+        ],
+        [
+          "storageattach",
+          "{{.Name}}",
+          "--storagectl",
+          "SATA Controller",
+          "--port",
+          "0",
+          "--nonrotational",
+          "on"
+        ]
+      ]
+    }
+  ],
+  "sensitive-variables": [
+    "ssh_password",
+    "ssh_pubkey"
+  ],
+  "provisioners": [
+    {
+      "execute_command": "{{.Vars}} sudo -E sh -eux '{{.Path}}'",
+      "expect_disconnect": true,
+      "scripts": [
+        "{{pwd}}/scripts/base.sh",
+        "{{pwd}}/scripts/vboxguest.sh",
+        "{{pwd}}/scripts/cleanall.sh"
+      ],
+      "type": "shell"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "{{user `build_directory`}}/{{user `box_basename`}}.{{.Provider}}.box",
+      "vagrantfile_template": "{{pwd}}/../_common/for_packer/Vagrantfile",
+      "include": "{{pwd}}/../_common/for_packer/metadata.json"
+    }
+  ]
+}

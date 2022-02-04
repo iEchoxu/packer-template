@@ -1,0 +1,8 @@
+{
+  "name": "centos/7.9",
+  "description": "This box contains Centos 7.9.2009 64-bit for qemu.",
+  "version": "2009.01",
+  "format":"qcow2",
+  "provider":"libvirt",
+  "virtual_size":40
+}

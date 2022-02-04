@@ -1,0 +1,15 @@
+{
+  "name": "centos/7.9",
+  "description": "This box contains Centos 7.9.2009 64-bit.",
+  "versions": [
+    {
+      "version": "2009.01",
+      "providers": [
+        {
+          "name": "virtualbox",
+          "url": "file://D:/work_Files/virtualbox_Files/vagrant_apps_config/common/centos-7.9.virtualbox.box"
+        }
+      ]
+    }
+  ]
+}

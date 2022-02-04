@@ -1,0 +1,6 @@
+{
+  "name": "centos/7.9",
+  "description": "This box contains Centos 7.9.2009 64-bit for virtualbox.",
+  "version": "2009.01",
+  "provider":"virtualbox"
+}

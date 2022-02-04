@@ -1,0 +1,20 @@
+{
+  "_comment": "Modify the following variables to suit your needs,Build with `packer build -var-file variables-centos7.9.json centos.json`",
+  "default_vm_name": "centos-7.9-x86_64",
+  "guest_additions_url": "",
+  "mirror": "http://mirrors.aliyun.com/centos",
+  "mirror_directory": "7.9.2009/isos/x86_64",
+  "iso_checksum": "07b94e6b1a0b0260b94c83d6bb76b26bf7a310dc78d7a9c7432809fb9bc6194a",
+  "iso_name": "CentOS-7-x86_64-Minimal-2009.iso",
+  "http_directory": "{{pwd}}/http",
+  "build_directory": "../builds",
+  "box_basename": "centos-7.9",
+  "headless": "",
+  "cpus": "1",
+  "memory": "1024",
+  "disk_size": "40960",
+  "ks_path": "7/ks.cfg",
+  "ssh_username": "vagrant",
+  "ssh_password": "vagrant",
+  "ssh_pubkey": "sshkey/id_rsa_vagrant.pub"
+}
