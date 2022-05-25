@@ -1,0 +1,93 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+LINUX_BASE_BOX = "centos/7.9"
+
+Vagrant.configure(2) do |config|
+    config.vm.box = LINUX_BASE_BOX
+    config.vm.box_url = "file://../common/metadata.json"
+    config.ssh.username="echoxu"
+    config.ssh.private_key_path = "C:\\Users\\echoxu\\.ssh\\id_rsa_vagrant"
+    config.ssh.guest_port = 51888
+    config.vm.network :forwarded_port, id: "ssh", guest: 22, host: 2222, disabled: true
+	
+    config.vm.define "WEB", autostart: true, primary: true do |webCfg|
+        webCfg.vm.hostname = "vue-viewfilx"
+        webCfg.vm.network :forwarded_port, guest: 51888, host: 2256
+        webCfg.ssh.port = 2256
+        webCfg.vm.network "private_network", ip: "192.168.56.95", netmask: "255.255.255.0"
+        webCfg.vm.synced_folder ".", "/vagrant", disabled: true
+        webCfg.vm.synced_folder "./share/vue-viewfilx", "/home/echoxu/vue-viewfilx"
+        webCfg.vm.provider "virtualbox" do |vb|
+            vb.name = "viewfilx.com"
+            vb.memory = "1024"
+            vb.cpus = 1
+        end
+        # 安装 vue 
+        webCfg.vm.provision "shell", privileged: true, path: './scripts/vue.sh'
+    end
+
+    config.vm.define "API", autostart: true, primary: true do |apiCfg|
+        apiCfg.vm.hostname = "api-viewfilx"
+        apiCfg.vm.network :forwarded_port, guest: 51888, host: 2257
+        apiCfg.ssh.port = 2257
+        apiCfg.vm.network "private_network", ip: "192.168.56.96", netmask: "255.255.255.0"
+        apiCfg.vm.synced_folder ".", "/vagrant", disabled: true
+        apiCfg.vm.synced_folder "./share/api-viewfilx", "/home/echoxu/api-viewfilx"
+        apiCfg.vm.provider "virtualbox" do |vb|
+            vb.name = "api.viewfilx.com"
+            vb.memory = "1024"
+            vb.cpus = 1
+        end
+        # 安装 go，需要在 vagrant up 后执行 vagrant provision 才会执行此脚本
+        apiCfg.vm.provision "shell", privileged: true, path: './scripts/go.sh'
+    end
+    
+    config.vm.define "STORAGE", autostart: true, primary: true do |storageCfg|
+        storageCfg.vm.hostname = "minio-viewfilx"
+        storageCfg.vm.network :forwarded_port, guest: 51888, host: 2258
+        storageCfg.ssh.port = 2258
+        storageCfg.vm.network "private_network", ip: "192.168.56.97", netmask: "255.255.255.0"
+        storageCfg.vm.synced_folder ".", "/vagrant", disabled: true
+        # storageCfg.vm.disk :disk, size: "10GB", primary: true
+        storageCfg.vm.provider "virtualbox" do |vb|
+            vb.name = "minio.viewfilx.com"
+            vb.memory = "1024"
+            vb.cpus = 1
+        end
+        # 安装 minio
+        storageCfg.vm.provision "shell", privileged: true, path: './scripts/minio.sh'
+        storageCfg.vm.provision "file", source: "./scripts/minio-startup.sh", destination: "/tmp/minio.sh"
+        storageCfg.vm.provision "shell", privileged: true, inline: 'mv /tmp/minio.sh /etc/init.d/ && chmod +x /etc/init.d/minio.sh && chkconfig --add minio.sh'
+    end
+    
+    config.vm.define "NGINX", autostart: true, primary: true do |nginxCfg|
+        nginxCfg.vm.hostname = "nginx-viewfilx"
+        nginxCfg.vm.network :forwarded_port, guest: 51888, host: 2259
+        nginxCfg.ssh.port = 2259
+        nginxCfg.vm.network "private_network", ip: "192.168.56.98", netmask: "255.255.255.0"
+        nginxCfg.vm.synced_folder ".", "/vagrant", disabled: true
+        nginxCfg.vm.provider "virtualbox" do |vb|
+            vb.name = "nginx.viewfilx.com"
+            vb.memory = "1024"
+            vb.cpus = 1
+        end
+        # 安装 openresty 或者 nginx + lua
+        nginxCfg.vm.provision "shell", privileged: true, path: './scripts/nginx.sh'
+    end
+    
+    config.vm.define "DB", autostart: true, primary: true do |dbCfg|
+        dbCfg.vm.hostname = "mysql-viewfilx"
+        dbCfg.vm.network :forwarded_port, guest: 51888, host: 2260
+        dbCfg.ssh.port = 2260
+        dbCfg.vm.network "private_network", ip: "192.168.56.99", netmask: "255.255.255.0"
+        dbCfg.vm.synced_folder ".", "/vagrant", disabled: true
+        dbCfg.vm.provider "virtualbox" do |vb|
+            vb.name = "mysql.viewfilx.com"
+            vb.memory = "1024"
+            vb.cpus = 1
+        end
+        dbCfg.vm.provision "shell", privileged: true, path: './scripts/mysql.sh'
+    end
+
+end

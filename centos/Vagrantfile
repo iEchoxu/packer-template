@@ -1,0 +1,104 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+LINUX_BASE_BOX = "centos/7.9"
+
+Vagrant.configure(2) do |config|
+    config.vm.box = LINUX_BASE_BOX
+    config.vm.box_url = "file://../common/metadata-kvm.json"
+    config.ssh.username="你的用户名"
+    config.ssh.insert_key = false
+    config.ssh.connect_timeout = 300
+    config.ssh.private_key_path = "~/.ssh/你的密钥"
+    config.ssh.guest_port = 51888
+    config.vm.network :forwarded_port, id: "ssh", guest: 22, host: 2222, disabled: true
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+	
+    config.vm.define "WEB", autostart: true, primary: true do |webCfg|
+        webCfg.vm.hostname = "vue-viewfilx"
+        #config.vm.network :private_network, :ip => "192.168.121.89",:libvirt__network_name => "vagrant-libvirt"
+        
+        webCfg.vm.provider "libvirt" do |libvirt|
+            libvirt.memory = "1024"
+            libvirt.cpus = 1
+            libvirt.driver = "kvm"
+            libvirt.nested = true
+            libvirt.default_prefix="vue.viewfilx.com-"
+            libvirt.management_network_mac = "52:54:00:40:e9:48"
+        end
+        
+        # 安装 vue 
+        webCfg.vm.provision "shell", privileged: true, path: './scripts/vue.sh'
+    end
+
+    config.vm.define "API", autostart: true, primary: true do |apiCfg|
+        apiCfg.vm.hostname = "api-viewfilx"
+        #apiCfg.vm.network :private_network, :ip => "192.168.121.90",:libvirt__network_name => "vagrant-libvirt"
+        #apiCfg.vm.synced_folder "./share/api-viewfilx", "/home/echoxu/api-viewfilx", type: "rsync"
+        
+        apiCfg.vm.provider "libvirt" do |libvirt|
+            libvirt.memory = "1024"
+            libvirt.cpus = 1
+            libvirt.driver = "kvm"
+            libvirt.nested = true
+            libvirt.default_prefix="api.viewfilx.com-"
+            libvirt.management_network_mac = "52:54:00:e0:72:28"
+        end
+        
+        # 安装 go，需要在 vagrant up 后执行 vagrant provision 才会执行此脚本
+        apiCfg.vm.provision "shell", privileged: true, path: './scripts/go.sh'
+    end
+    
+    config.vm.define "STORAGE", autostart: true, primary: true do |storageCfg|
+        storageCfg.vm.hostname = "minio-viewfilx"
+        #storageCfg.vm.network :private_network, :ip => "192.168.121.91",:libvirt__network_name => "vagrant-libvirt"
+        
+        storageCfg.vm.provider "libvirt" do |libvirt|
+            libvirt.memory = "1024"
+            libvirt.cpus = 1
+            libvirt.driver = "kvm"
+            libvirt.nested = true
+            libvirt.default_prefix="minio.viewfilx.com-"
+            libvirt.management_network_mac = "52:54:00:9b:f0:46"
+        end
+        
+        # 安装 minio
+        storageCfg.vm.provision "shell", privileged: true, path: './scripts/minio.sh'
+        storageCfg.vm.provision "file", source: "./scripts/minio-startup.sh", destination: "/tmp/minio.sh"
+        storageCfg.vm.provision "shell", privileged: true, inline: 'mv /tmp/minio.sh /etc/init.d/ && chmod +x /etc/init.d/minio.sh && chkconfig --add minio.sh'
+    end
+    
+    config.vm.define "NGINX", autostart: true, primary: true do |nginxCfg|
+        nginxCfg.vm.hostname = "nginx-viewfilx"
+        #nginxCfg.vm.network :private_network, :ip => "192.168.121.92",:libvirt__network_name => "vagrant-libvirt"
+        
+        nginxCfg.vm.provider "libvirt" do |libvirt|
+            libvirt.memory = "1024"
+            libvirt.cpus = 1
+            libvirt.driver = "kvm"
+            libvirt.nested = true
+            libvirt.default_prefix="nginx.viewfilx.com-"
+            libvirt.management_network_mac = "52:54:00:ae:5d:9c"
+        end
+        
+        # 安装 openresty 或者 nginx + lua
+        nginxCfg.vm.provision "shell", privileged: true, path: './scripts/nginx.sh'
+    end
+    
+    config.vm.define "DB", autostart: true, primary: true do |dbCfg|
+        dbCfg.vm.hostname = "mysql-viewfilx"
+        #dbCfg.vm.network :private_network, :ip => "192.168.121.93",:libvirt__network_name => "vagrant-libvirt"
+        
+        dbCfg.vm.provider "libvirt" do |libvirt|
+            libvirt.memory = "1024"
+            libvirt.cpus = 1
+            libvirt.driver = "kvm"
+            libvirt.nested = true
+            libvirt.default_prefix="mysql.viewfilx.com-"
+            libvirt.management_network_mac = "52:54:00:fa:74:93"
+        end
+        
+        dbCfg.vm.provision "shell", privileged: true, path: './scripts/mysql.sh'
+    end
+
+end

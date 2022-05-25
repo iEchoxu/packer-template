@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7.9"
+  config.vm.box_url = "file://../common/metadata-kvm.json"
+  
+  config.ssh.username = "你的用户名"
+  config.ssh.insert_key = false
+  config.ssh.connect_timeout = 120
+  config.ssh.private_key_path = "~/.ssh/你的密钥"
+  config.ssh.guest_port = 51888
+  config.vm.network :forwarded_port, id: "ssh", guest: 22, host: 2222, disabled: true
+  
+  config.vm.synced_folder  ".", "/vagrant", disabled: true
+  
+  config.vm.define "CI-CD", autostart: true, primary: true do |jkCfg|
+    jkCfg.vm.hostname = "devops"
+    # 下面的会新增一个网卡并绑定ip为192.168.121.88 同时也绑定了一个 mac 地址
+    #jkCfg.vm.network :private_network, :ip => "192.168.121.88",:libvirt__network_name => "vagrant-libvirt", :mac => "52:54:00:d5:0d:88"
+    #jkCfg.vm.synced_folder "./share", "/home/echoxu/share", type: "rsync"
+    
+    jkCfg.vm.provider "libvirt" do |libvirt|
+      libvirt.memory = "1024"
+      libvirt.cpus = 1
+      libvirt.driver = "kvm"
+      #libvirt.storage_pool_name = "storage"
+      libvirt.nested = true
+      libvirt.default_prefix="devops.com-"
+      libvirt.management_network_mac = "52:54:00:d5:0d:d7"
+     #libvirt.management_network_name = "vagrant-libvirt"
+    end
+  
+  end
+  
+end

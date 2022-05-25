@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# 虚拟机相同配置时可用此方法
+LINUX_BASE_BOX = "centos/7.9"
+
+Host_count = 1
+
+mysql_servers = {
+    :'mysql-master' => '192.168.56.80',
+    :'mysql-slave1' => '192.168.56.81',
+    :'mysql-slave2' => '192.168.56.82'
+}
+
+Vagrant.configure(2) do |config|
+    config.vm.box = LINUX_BASE_BOX
+    config.vm.box_url = "file://../common/metadata-kvm.json"
+    config.ssh.username="你的用户名"
+    config.ssh.private_key_path = "~/.ssh/你的密钥"
+    config.vm.network :forwarded_port, id: "ssh", guest: 22, host: 2222, disabled: true
+    config.ssh.guest_port = 51888
+
+    mysql_servers.each do |mysql_server_name, mysql_server_ip|
+        config.vm.define mysql_server_name do |mysql_config|
+            mysql_config.vm.hostname = "#{mysql_server_name.to_s}.vagrant.internal"
+            mysql_config.vm.network :forwarded_port, guest: 51888, host: "#{2280+Host_count}"
+            mysql_config.ssh.port = "#{2280+Host_count}"
+            Host_count += 1
+            mysql_config.vm.network "private_network", ip: mysql_server_ip, netmask: "255.255.255.0"
+            mysql_config.vm.synced_folder ".", "/vagrant", disabled: true
+            mysql_config.vm.provider "virtualbox" do |vb|
+                vb.name = mysql_server_name.to_s
+                vb.memory = "512"
+            end
+        end       
+    end
+    
+end
