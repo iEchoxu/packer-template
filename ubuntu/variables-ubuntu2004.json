@@ -1,0 +1,19 @@
+{
+  "_comment": "Modify the following variables to suit your needs,Build with `packer build -var-file variables-ubuntu2004.json ubuntu-20.04-live-amd64.json`",
+  "default_vm_name": "ubuntu-20.04.4-x86_64",
+  "guest_additions_url": "",
+  "iso_checksum": "28ccdb56450e643bad03bb7bcf7507ce3d8d90e8bf09e38f6bd9ac298a98eaad",
+  "iso_urls": "https://mirrors.aliyun.com/ubuntu-releases/20.04.4/ubuntu-20.04.4-live-server-amd64.iso",
+  "local_iso_urls": "/home/echoxu/.cache/packer/ubuntu-autoinstall-2022-05-23.iso",
+  "local_iso_checksum": "28ccdb56450e643bad03bb7bcf7507ce3d8d90e8bf09e38f6bd9ac298a98eaad",
+  "http_directory": "{{pwd}}/http",
+  "build_directory": "../builds",
+  "box_basename": "ubuntu-20.04.4",
+  "headless": "",
+  "cpus": "2",
+  "memory": "2048",
+  "disk_size": "40960",
+  "qemu_display": "none",
+  "ssh_username": "你的用户名",
+  "ssh_password": "你的密码"
+}

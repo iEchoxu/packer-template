@@ -1,0 +1,34 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu-server
+    password: "你的密码加密后的md5"
+    username: 你的用户名
+  early-commands:
+    - sudo systemctl stop ssh
+  packages: [openssh-server, curl, vim, zip, unzip, wget]
+  ssh:
+    install-server: true
+    authorized-keys: [你的 sshkey]
+    allow-pw: true
+  storage:
+    layout:
+      name: direct
+  apt:
+    disable_components: []
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches:
+      - amd64
+      - i386
+      uri: http://mirrors.aliyun.com/ubuntu/
+    - arches:
+      - default
+      uri: http://ports.ubuntu.com/ubuntu-ports   
+  user-data:
+    timezone: Asia/Shanghai
+  late-commands:
+    - echo '你的用户名 ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/你的用户名
+    - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/你的用户名

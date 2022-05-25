@@ -20,4 +20,4 @@
   - 先进入到 `Centos` 目录下
   - 然后执行 `packer build -var-file variables-centos7.9.json centos-qemu.json`
   - 待打包完成后在 builds 目录下找到生成的 Box 文件，然后可用 `vagrant box add xxxx.box` 添加使用
-
+  - 如果是打包 ubuntu，一定要设置 export  TMPDIR=~/workfiles 添加到 ~/.bashrc，不然会导致构建失败

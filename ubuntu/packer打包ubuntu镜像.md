@@ -1,0 +1,49 @@
+- 创建 ubuntu iso 文件
+	- https://github.com/covertsh/ubuntu-autoinstall-generator
+	- https://help.ubuntu.com/community/LiveCDCustomization
+	-  https://gist.github.com/s3rj1k/55b10cd20f31542046018fcce32f103e
+- cloud-init 语法参考
+	- https://cloudinit.readthedocs.io/en/latest/topics/modules.html
+	- cloud-init 疑问
+		- https://askubuntu.com/questions/1329682/how-do-i-get-the-name-of-the-network-adapter-before-install-to-set-it-in-the-au/1329971#1329971
+		- 关闭 update https://askubuntu.com/questions/1290700/disable-auto-update-at-end-of-autoinstall-cloud-init
+- boot_command 内核参数参考
+	- https://help.ubuntu.com/community/BootOptions
+- ubuntu 自动安装官方文档
+	- https://ubuntu.com/server/docs/install/autoinstall-quickstart
+	- https://discourse.ubuntu.com/t/please-test-autoinstalls-for-20-04/15250/318
+- packer 使用案例
+	- https://imagineer.in/blog/packer-build-for-ubuntu-20-04/
+	- https://blog.csdn.net/allway2/article/details/122105390
+	- https://www.jianshu.com/p/9526ce94fc47
+	- https://www.molnar-peter.hu/en/ubuntu-jammy-netinstall-pxe.html
+	- https://www.puppeteers.net/blog/building-ubuntu-20-04-qemu-images-with-packer/ 查看
+	- packer 官方文档
+		- https://www.packer.io/guides/automatic-operating-system-installs/preseed_ubuntu
+		- qemu: https://www.packer.io/plugins/builders/qemu
+		- packer 给 cdrom 添加文件： https://discuss.hashicorp.com/t/packer-ubuntu-20-04-autoinstall-via-cd-drive/18999/7
+	- packer 疑问
+		- https://github.com/hashicorp/packer-plugin-vsphere/issues/127
+		- https://github.com/hashicorp/packer/issues/11651
+- packer ubuntu 模板
+	- https://github.com/chef/bento/tree/master/packer_templates/ubuntu
+	- https://github.com/aerialls/madalynn-packer/blob/master/ubuntu-20.04/ubuntu.json
+	- https://github.com/kalenarndt/packer-vsphere-cloud-init/blob/master/templates/ubuntu/20/linux-ubuntu-server.pkr.hcl
+	- https://github.com/it-pappa/Packer-vsphere/blob/main/Ubuntu.20.04/auto.pkrvars.hcl
+	- https://github.com/vmware-samples/packer-examples-for-vsphere/blob/main/builds/linux/ubuntu/20-04-lts/data/user-data.pkrtpl.hcl
+	- https://github.com/hashicorp/packer/issues/11275
+	- https://github.com/brantleyp1/ubuntu-autoinstall
+- FAQ
+	- Post-processor failed: write /tmp/packer3748823707/box.img: copy_file_range: no space left on device
+		- 解决办法：
+			-  将 export  TMPDIR=/home/echoxu/workfiles 添加到 ~/.bashrc
+	-  有没有 user-data 模板
+		-  先手动安装 ubuntu ，默认安装后在 /var/log/installer/autoinstall-user-data
+	-  如何生成密码
+		-  mkpasswd --method=SHA-512 --rounds=4096
+	-  怎么确定 ubuntu iso 以及 user-data 没有问题
+		-  用你的 ubuntu iso 以及 user-data 按照 https://ubuntu.com/server/docs/install/autoinstall-quickstart 的教程实现一遍
+		-  如果上面创建的 kvm 虚拟机能够开机表示, ubuntu 以及 user-data 都没有问题
+		-  我使用 packer 通过在 boot_command 参数往内核里添加 http 里的 user-data 等文件时还是不能安装，无法解决，也懒得试了
+		-  可使用 packer 往当前 iso 里添加 user-data 等文件，参考： https://discuss.hashicorp.com/t/packer-ubuntu-20-04-autoinstall-via-cd-drive/18999/7
+	
