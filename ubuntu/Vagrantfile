@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu2004.4"
+  config.ssh.username = "你的用户名"
+  config.ssh.insert_key = false
+  config.ssh.connect_timeout = 120
+  config.ssh.private_key_path = "~/.ssh/你的密钥"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.ssh.guest_port = 51888
+  config.vm.network :forwarded_port, id: "ssh", guest: 22, host: 2222, disabled: true
+
+	config.vm.define "openwrt", autostart: true, primary: true do |opCfg|
+    opCfg.vm.hostname = "openwrt"
+    # 下面的会新增一个网卡并绑定ip为192.168.121.88 同时也绑定了一个 mac 地址
+    opCfg.vm.network :private_network, :ip => "192.168.121.88",:libvirt__network_name => "vagrant-libvirt"
+    #opCfg.vm.synced_folder "./share", "/home/echoxu/share", type: "rsync"
+    
+    opCfg.vm.provider "libvirt" do |libvirt|
+      libvirt.memory = "1024"
+      libvirt.cpus = 1
+      libvirt.driver = "kvm"
+      #libvirt.storage_pool_name = "storage"
+      libvirt.nested = false
+      libvirt.default_prefix="ubuntu-server-"
+     #libvirt.management_network_name = "vagrant-libvirt"
+    end
+  
+  end
+end
