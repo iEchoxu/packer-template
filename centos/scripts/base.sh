@@ -119,18 +119,18 @@ rename_eth0(){
 # 清除多余的系统虚拟账号
 delUser(){
   chattr -i /etc/passwd /etc/shadow /etc/group /etc/gshadow /etc/inittab
-  for user in `cat /etc/passwd |grep -vE "root|daemon|shutdown|halt|vagrant|dbus|polkitd|chrony|sshd|mail|bin" |awk -F':' '{print $1}'`
+  for user in `cat /etc/passwd |grep -vE "root|daemon|shutdown|halt|echoxu|dbus|polkitd|chrony|sshd|mail|bin" |awk -F':' '{print $1}'`
   do  
     userdel -r $user &>/dev/null && echo "成功删除 $user" || echo "删除 $user 失败"
   done
 }
 
 
-# 设置 vagrant 账号无密码且拥有 sudo 权限
+# 设置 echoxu 账号无密码且拥有 sudo 权限
 userNOPASSWD(){
-  echo 'Defaults:vagrant !requiretty' > /etc/sudoers.d/vagrant
-  echo '%vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/vagrant
-  chmod 440 /etc/sudoers.d/vagrant
+  echo 'Defaults:echoxu !requiretty' > /etc/sudoers.d/echoxu
+  echo '%echoxu ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/echoxu
+  chmod 440 /etc/sudoers.d/echoxu
 }
 
 
@@ -244,8 +244,9 @@ main(){
   echo ""
   echo "------------------- 虚拟机将重启，请不要关闭电源 ------------------"
 
-
-  shutdown -r now  # yum update 后生成了多余的 linux-firmware、新的内核、以及 不需要的字体库，只有 重启 才能获取到它们的结果
+  # shutdown -r now 
+  # https://github.com/hashicorp/packer/issues/3148
+  reboot # yum update 后生成了多余的 linux-firmware、新的内核、以及 不需要的字体库，只有 重启 才能获取到它们的结果
 }
 
 
