@@ -1,0 +1,67 @@
+{
+    "_comment": "Basic templates for packer,Build with `packer build -var-file variables-ubuntu2204.json ubuntu-22.04-live-amd64.json | tee packer_ubuntu_base_output.txt `",
+    "builders": [
+        {
+            "boot_command": [
+                "<esc><esc><esc>",
+                "<enter><wait>",
+                "/casper/vmlinuz ",
+                "initrd=/casper/initrd ",
+                "autoinstall ",
+                "<enter>"
+            ],
+            "boot_wait": "5s",
+            "cpus": "{{ user `cpus` }}",
+            "disk_size": "{{user `disk_size`}}",
+            "cd_files": ["./http/meta-data", "./http/user-data"],
+            "cd_label": "cidata",
+            "headless": "{{ user `headless` }}",
+            "http_directory": "{{user `http_directory`}}",
+            "iso_checksum": "{{user `local_iso_checksum`}}",
+            "iso_url": "{{user `local_iso_urls`}}",
+            "memory": "{{ user `memory` }}",
+            "output_directory": "{{ user `build_directory` }}/packer-{{user `default_vm_name`}}-qemu",
+            "shutdown_command": "echo {{user `ssh_password`}} | sudo -S shutdown -P now",
+            "ssh_port": 22,
+            "ssh_timeout": "60m",
+            "ssh_username": "{{user `ssh_username`}}",
+            "ssh_password": "{{user `ssh_password`}}",
+            "ssh_handshake_attempts": "2000",
+            "type": "qemu",
+            "format": "qcow2",
+            "accelerator": "kvm",
+            "net_device": "virtio-net",
+            "disk_interface": "virtio",
+            "vm_name": "{{ user `default_vm_name` }}",
+            "qemuargs": [
+                [ "-m", "{{user `memory`}}" ]
+            ]
+        }
+
+    ],
+    "sensitive-variables": [
+        "ssh_password",
+        "ssh_pubkey"
+    ],
+    "post-processors": [
+        {
+            "type": "vagrant",
+            "output": "{{user `build_directory`}}/{{user `box_basename`}}.{{.Provider}}-kvm.box",
+            "vagrantfile_template": "{{pwd}}/../_common/for_packer/Vagrantfile",
+            "include": "{{pwd}}/../_common/for_packer/metadata.json"
+        }
+    ],
+    "provisioners": [
+        {
+            "execute_command": "{{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+            "expect_disconnect": true,
+            "scripts": [
+                "{{template_dir}}/scripts/base.sh",
+                "{{template_dir}}/scripts/networking.sh",
+                "{{template_dir}}/scripts/cleanup.sh",
+                "{{template_dir}}/scripts/minimize.sh"
+            ],
+            "type": "shell"
+        }
+    ]
+}
