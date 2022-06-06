@@ -47,8 +47,8 @@
         {
             "type": "vagrant",
             "output": "{{user `build_directory`}}/{{user `box_basename`}}.{{.Provider}}-kvm.box",
-            "vagrantfile_template": "{{pwd}}/../_common/for_packer/Vagrantfile",
-            "include": "{{pwd}}/../_common/for_packer/metadata.json"
+            "vagrantfile_template": "{{pwd}}/../_common/for_packer/ubuntu2204/Vagrantfile",
+            "include": "{{pwd}}/../_common/for_packer/ubuntu2204/metadata.json"
         }
     ],
     "provisioners": [

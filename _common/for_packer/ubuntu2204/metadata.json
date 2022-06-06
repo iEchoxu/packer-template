@@ -1,0 +1,8 @@
+{
+  "name": "ubuntu/22.04",
+  "description": "This box contains ubuntu 22.04 64-bit for qemu.",
+  "version": "2204.01",
+  "format":"qcow2",
+  "provider":"libvirt",
+  "virtual_size":40
+}

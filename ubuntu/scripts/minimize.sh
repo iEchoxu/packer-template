@@ -25,6 +25,7 @@ sed -i 's%#PermitEmptyPasswords no%PermitEmptyPasswords no%' /etc/ssh/sshd_confi
 sed -i 's%#PubkeyAuthentication yes%PubkeyAuthentication yes%' /etc/ssh/sshd_config
 sed -i 's%PasswordAuthentication yes%PasswordAuthentication no%' /etc/ssh/sshd_config
 sed -i 's%#Port 22%Port 51888%' /etc/ssh/sshd_config
+echo "PubkeyAcceptedKeyTypes=+ssh-rsa" >> /etc/ssh/sshd_config    # ubuntu22.04 必须添加此行不然 vagrant up 会一直连接不了虚拟机，ubuntu20.04.4 可不添加
 
 systemctl restart sshd
 

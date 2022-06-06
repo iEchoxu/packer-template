@@ -1,0 +1,8 @@
+{
+  "name": "ubuntu/2004",
+  "description": "This box contains Ubuntu 2004.4 64-bit for qemu.",
+  "version": "2004.01",
+  "format":"qcow2",
+  "provider":"libvirt",
+  "virtual_size":40
+}
