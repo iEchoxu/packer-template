@@ -16,6 +16,7 @@ ufw allow 51888
 ufw reload
 
 # 修改登录时的欢迎信息
+chmod -x /etc/update-motd.d/*        # 取消默认的 motd 
 info="Welcome! Do Not Use rm -rf ,Have a Nice Day!"
 
 if [ -d /etc/update-motd.d ]; then
